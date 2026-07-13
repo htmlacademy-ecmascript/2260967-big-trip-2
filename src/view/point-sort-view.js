@@ -1,5 +1,4 @@
-import {createElement} from '../render.js';
-
+import AbstractView from '../framework/view/abstract-view';
 function createPointSortForm() {
   return `
      <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
@@ -31,20 +30,8 @@ function createPointSortForm() {
   `;
 }
 
-export default class PointSortView {
-  getTemplate() {
+export default class PointSortView extends AbstractView {
+  get template() {
     return createPointSortForm();
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement(){
-    this.element = null;
   }
 }

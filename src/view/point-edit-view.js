@@ -1,4 +1,5 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view';
+
 
 function createOfferSelectorTemplate(offer, checkedOfferIds) {
   const isChecked = checkedOfferIds.includes(offer.id);
@@ -130,27 +131,28 @@ function createPointEditTemplate(point, destination, offers, destinations) {
   `;
 }
 
-export default class PointEditView {
-  constructor(point, destination, offers, destinations) {
+export default class PointEditView extends AbstractView {
+  constructor(point, destination, offers, destinations, onFormSubmit) {
+    super();
     this.point = point;
     this.destination = destination;
     this.offers = offers;
     this.destinations = destinations;
+    this.onFormSubmit = onFormSubmit;
+
+    this.element.querySelector('form')
+      .addEventListener('submit', (evt) => {
+        evt.preventDefault();
+        this.onFormSubmit();
+      });
+
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', () => {
+        this.onFormSubmit();
+      });
   }
 
-  getTemplate() {
+  get template() {
     return createPointEditTemplate(this.point, this.destination, this.offers, this.destinations);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

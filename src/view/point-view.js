@@ -1,10 +1,9 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view';
 
 function createOffersTemplate(offers) {
   if (!offers || offers.length === 0) {
     return '';
   }
-
   return offers.map((offer) => `
     <li class="event__offer">
       <span class="event__offer-title">${offer.title}</span>
@@ -52,26 +51,21 @@ function createPointTemplate(point, destination, offers) {
   `;
 }
 
-export default class PointView {
-  constructor(point, destination, offers) {
+export default class PointView extends AbstractView {
+  constructor(point, destination, offers, onRollupClick) {
+    super();
     this.point = point;
     this.destination = destination;
     this.offers = offers;
+    this.onRollupClick = onRollupClick;
+
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', () => {
+        this.onRollupClick();
+      });
   }
 
-  getTemplate() {
+  get template() {
     return createPointTemplate(this.point, this.destination, this.offers);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
