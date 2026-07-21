@@ -23,4 +23,8 @@ function isPointPast(point) {
   return dayjs().isAfter(point.dateTo);
 }
 
-export {getRandomArrayElement, formatDate, isPointFuture, isPointPresent, isPointPast};
+function updateItem(items, update) {
+  return items.map((item) => item.id === update.id ? update : item);
+}
+
+export {getRandomArrayElement, formatDate, isPointFuture, isPointPresent, isPointPast, updateItem};

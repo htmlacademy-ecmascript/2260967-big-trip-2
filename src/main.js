@@ -2,7 +2,7 @@ import PointListPresenter from './presenter/point-list-presenter.js';
 import PointsModel from './model/points-model.js';
 import TripFilterView from './view/trip-filter-view.js';
 import TripInfoView from './view/trip-info-view.js';
-import { render, RenderPosition } from './render.js';
+import { render, RenderPosition } from './framework/render.js';
 import { formatDate, isPointFuture, isPointPresent, isPointPast } from './utils.js';
 
 const pageHeader = document.querySelector('.page-header');
