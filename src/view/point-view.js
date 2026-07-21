@@ -1,4 +1,5 @@
 import AbstractView from '../framework/view/abstract-view';
+import dayjs from 'dayjs';
 
 function createOffersTemplate(offers) {
   if (!offers || offers.length === 0) {
@@ -14,19 +15,24 @@ function createOffersTemplate(offers) {
 }
 
 function createPointTemplate(point, destination, offers) {
+  const dateForAttribute = dayjs(point.dateFrom).format('YYYY-MM-DD');
+  const dateLabel = dayjs(point.dateFrom).format('MMM DD').toUpperCase();
+  const startTime = dayjs(point.dateFrom).format('HH:mm');
+  const endTime = dayjs(point.dateTo).format('HH:mm');
+
   return `
          <li class="trip-events__item">
               <div class="event">
-              <time class="event__date" datetime="${point.dateFrom}">MAR 18</time>
+              <time class="event__date" datetime="${dateForAttribute}">${dateLabel}</time>
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
                 </div>
                 <h3 class="event__title">${point.type} ${destination.name}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
-                    <time class="event__start-time" datetime="${point.dateFrom}"> 10:30</time>
+                    <time class="event__start-time" datetime="${point.dateFrom}">${startTime}</time>
                     &mdash;
-                    <time class="event__end-time" datetime="${point.dateTo}"> 11:00 </time>
+                    <time class="event__end-time" datetime="${point.dateTo}">${endTime}</time>
                   </p>
                   <p class="event__duration">30M</p>
                 </div>

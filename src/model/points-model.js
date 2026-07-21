@@ -1,7 +1,9 @@
 import {generatePoint, DESTINATIONS, OFFERS} from '../mock/point.js';
 
+const POINTS_COUNT = 3;
+
 class PointsModel {
-  #points = Array.from({length: 5}, generatePoint);
+  #points = Array.from({length: POINTS_COUNT}, generatePoint);
   #destinations = DESTINATIONS;
   #offers = OFFERS;
 

@@ -2,6 +2,7 @@ import PointSortView from '../view/point-sort-view.js';
 import PointListView from '../view/point-list-view.js';
 import PointEditView from '../view/point-edit-view.js';
 import PointView from '../view/point-view.js';
+import EmptyListView from '../view/empty-list-view.js';
 import { render } from '../render.js';
 
 export default class PointListPresenter {
@@ -9,6 +10,7 @@ export default class PointListPresenter {
   #pointsModel;
   #pointSortComponent = new PointSortView();
   #pointListViewComponent = new PointListView();
+  #emptyListComponent = new EmptyListView();
 
   constructor(container, pointsModel) {
     this.#container = container;
@@ -16,10 +18,16 @@ export default class PointListPresenter {
   }
 
   init() {
+    const points = this.#pointsModel.points;
+
+    if (points.length === 0) {
+      render(this.#emptyListComponent, this.#container);
+      return;
+    }
+
     render(this.#pointSortComponent, this.#container);
     render(this.#pointListViewComponent, this.#container);
 
-    const points = this.#pointsModel.points;
     points.forEach((point) => {
       this.#renderPoint(point);
     });
