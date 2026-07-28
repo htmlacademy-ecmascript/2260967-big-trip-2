@@ -1,4 +1,5 @@
 import AbstractView from '../framework/view/abstract-view';
+import dayjs from 'dayjs';
 
 function createOffersTemplate(offers) {
   if (!offers || offers.length === 0) {
@@ -14,19 +15,28 @@ function createOffersTemplate(offers) {
 }
 
 function createPointTemplate(point, destination, offers) {
+  const dateForAttribute = dayjs(point.dateFrom).format('YYYY-MM-DD');
+  const dateLabel = dayjs(point.dateFrom).format('MMM DD').toUpperCase();
+  const startTime = dayjs(point.dateFrom).format('HH:mm');
+  const endTime = dayjs(point.dateTo).format('HH:mm');
+
+  const favoriteClassName = point.isFavorite
+    ? 'event__favorite-btn event__favorite-btn--active'
+    : 'event__favorite-btn';
+
   return `
          <li class="trip-events__item">
               <div class="event">
-              <time class="event__date" datetime="${point.dateFrom}">MAR 18</time>
+              <time class="event__date" datetime="${dateForAttribute}">${dateLabel}</time>
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
                 </div>
                 <h3 class="event__title">${point.type} ${destination.name}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
-                    <time class="event__start-time" datetime="${point.dateFrom}"> 10:30</time>
+                    <time class="event__start-time" datetime="${point.dateFrom}">${startTime}</time>
                     &mdash;
-                    <time class="event__end-time" datetime="${point.dateTo}"> 11:00 </time>
+                    <time class="event__end-time" datetime="${point.dateTo}">${endTime}</time>
                   </p>
                   <p class="event__duration">30M</p>
                 </div>
@@ -37,7 +47,7 @@ function createPointTemplate(point, destination, offers) {
    <ul class="event__selected-offers">
           ${createOffersTemplate(offers)}
         </ul>
-                <button class="event__favorite-btn event__favorite-btn--active" type="button">
+                <button class="${favoriteClassName}" type="button">
                   <span class="visually-hidden">Add to favorite</span>
                   <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
                     <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
@@ -52,16 +62,22 @@ function createPointTemplate(point, destination, offers) {
 }
 
 export default class PointView extends AbstractView {
-  constructor(point, destination, offers, onRollupClick) {
+  constructor(point, destination, offers, onRollupClick, onFavoriteClick) {
     super();
     this.point = point;
     this.destination = destination;
     this.offers = offers;
     this.onRollupClick = onRollupClick;
+    this.onFavoriteClick = onFavoriteClick;
 
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', () => {
         this.onRollupClick();
+      });
+
+    this.element.querySelector('.event__favorite-btn')
+      .addEventListener('click', () => {
+        this.onFavoriteClick();
       });
   }
 

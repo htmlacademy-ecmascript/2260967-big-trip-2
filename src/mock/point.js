@@ -1,4 +1,5 @@
 import {getRandomArrayElement} from '../utils.js';
+import dayjs from 'dayjs';
 
 const TYPES = [
   'taxi',
@@ -11,6 +12,8 @@ const TYPES = [
   'sightseeing',
   'restaurant'
 ];
+
+const PRICES = [50, 75, 90, 100, 120, 150, 200, 250, 300];
 
 const DESTINATIONS = [
   {
@@ -75,19 +78,35 @@ const OFFERS = [
   }
 ];
 
+function generateRandomDateFrom() {
+  const daysGap = Math.floor(Math.random() * 10);
+  const hoursGap = Math.floor(Math.random() * 24);
+
+  return dayjs()
+    .add(daysGap, 'day')
+    .hour(hoursGap)
+    .minute(0)
+    .second(0)
+    .toISOString();
+}
+
 function generatePoint() {
   const type = getRandomArrayElement(TYPES);
   const destination = getRandomArrayElement(DESTINATIONS);
 
   const availableOffers = OFFERS.filter((offer) => offer.type === type);
 
+  const dateFrom = generateRandomDateFrom();
+  const durationHours = Math.floor(Math.random() * 5) + 1;
+  const dateTo = dayjs(dateFrom).add(durationHours, 'hour').toISOString();
+
   return {
     id: String(Math.random()),
     type,
     destination: destination.id,
-    dateFrom: '2026-07-10T10:00:00.000Z',
-    dateTo: '2026-07-10T14:00:00.000Z',
-    basePrice: 250,
+    dateFrom,
+    dateTo,
+    basePrice: getRandomArrayElement(PRICES),
     offers: availableOffers.length
       ? [getRandomArrayElement(availableOffers).id]
       : [],
@@ -95,5 +114,4 @@ function generatePoint() {
   };
 }
 
-
-export {TYPES, DESTINATIONS, OFFERS,generatePoint};
+export {TYPES, DESTINATIONS, OFFERS, generatePoint};
