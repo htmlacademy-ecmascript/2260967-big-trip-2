@@ -15,14 +15,18 @@ function createTripInfoTemplate(citiesText, datesText, totalCost) {
 }
 
 export default class TripInfoView extends AbstractView {
+  #citiesText = null;
+  #datesText = null;
+  #totalCost = null;
+
   constructor(citiesText, datesText, totalCost) {
     super();
-    this.citiesText = citiesText;
-    this.datesText = datesText;
-    this.totalCost = totalCost;
+    this.#citiesText = citiesText;
+    this.#datesText = datesText;
+    this.#totalCost = totalCost;
   }
 
   get template() {
-    return createTripInfoTemplate(this.citiesText, this.datesText, this.totalCost);
+    return createTripInfoTemplate(this.#citiesText, this.#datesText, this.#totalCost);
   }
 }

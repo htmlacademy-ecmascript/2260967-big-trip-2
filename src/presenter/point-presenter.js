@@ -34,8 +34,8 @@ export default class PointPresenter {
 
     const destination = this.#pointsModel.getDestinationById(point.destination);
     const offers = this.#pointsModel.getOffersByIds(point.offers);
-    const allTypeOffers = this.#pointsModel.getOffersByType(point.type);
     const allDestinations = this.#pointsModel.destinations;
+    const allOffers = this.#pointsModel.offers;
 
     this.#pointComponent = new PointView(
       point,
@@ -45,11 +45,11 @@ export default class PointPresenter {
       () => this.#handleFavoriteClick(),
     );
 
+    // ВАЖНО: порядок аргументов теперь (point, allDestinations, allOffers, onClose)
     this.#pointEditComponent = new PointEditView(
       point,
-      destination,
-      allTypeOffers,
       allDestinations,
+      allOffers,
       () => this.#replaceFormToPoint(),
     );
 
@@ -82,7 +82,7 @@ export default class PointPresenter {
   }
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+    this.#handleDataChange({ ...this.#point, isFavorite: !this.#point.isFavorite });
   };
 
   #escKeyDownHandler = (evt) => {
