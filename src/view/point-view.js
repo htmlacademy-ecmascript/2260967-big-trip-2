@@ -1,5 +1,6 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractView from '../framework/view/abstract-view';
 import dayjs from 'dayjs';
+import { getDuration } from '../utils.js';
 
 function createOffersTemplate(offers) {
   if (!offers || offers.length === 0) {
@@ -19,6 +20,7 @@ function createPointTemplate(point, destination, offers) {
   const dateLabel = dayjs(point.dateFrom).format('MMM DD').toUpperCase();
   const startTime = dayjs(point.dateFrom).format('HH:mm');
   const endTime = dayjs(point.dateTo).format('HH:mm');
+  const duration = getDuration(point.dateFrom, point.dateTo);
 
   const favoriteClassName = point.isFavorite
     ? 'event__favorite-btn event__favorite-btn--active'
@@ -38,7 +40,7 @@ function createPointTemplate(point, destination, offers) {
                     &mdash;
                     <time class="event__end-time" datetime="${point.dateTo}">${endTime}</time>
                   </p>
-                  <p class="event__duration">30M</p>
+                  <p class="event__duration">${duration}</p>
                 </div>
                 <p class="event__price">
                   &euro;&nbsp;<span class="event__price-value">${point.basePrice}</span>
@@ -62,26 +64,35 @@ function createPointTemplate(point, destination, offers) {
 }
 
 export default class PointView extends AbstractView {
+  #point = null;
+  #destination = null;
+  #offers = null;
+  #handleRollupClick = null;
+  #handleFavoriteClick = null;
+
   constructor(point, destination, offers, onRollupClick, onFavoriteClick) {
     super();
-    this.point = point;
-    this.destination = destination;
-    this.offers = offers;
-    this.onRollupClick = onRollupClick;
-    this.onFavoriteClick = onFavoriteClick;
+    this.#point = point;
+    this.#destination = destination;
+    this.#offers = offers;
+    this.#handleRollupClick = onRollupClick;
+    this.#handleFavoriteClick = onFavoriteClick;
 
-    this.element.querySelector('.event__rollup-btn')
-      .addEventListener('click', () => {
-        this.onRollupClick();
-      });
-
-    this.element.querySelector('.event__favorite-btn')
-      .addEventListener('click', () => {
-        this.onFavoriteClick();
-      });
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupClickHandler);
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#favoriteClickHandler);
   }
 
   get template() {
-    return createPointTemplate(this.point, this.destination, this.offers);
+    return createPointTemplate(this.#point, this.#destination, this.#offers);
   }
+
+  #rollupClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleRollupClick();
+  };
+
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFavoriteClick();
+  };
 }
