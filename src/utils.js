@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { FilterType } from './const.js';
 
 function getRandomArrayElement(items) {
   return items[Math.floor(Math.random() * items.length)];
@@ -57,6 +58,13 @@ function getDuration(dateFrom, dateTo) {
   return `${hh}H ${mm}M`;
 }
 
+const filter = {
+  [FilterType.EVERYTHING]: (points) => [...points],
+  [FilterType.FUTURE]: (points) => points.filter((point) => isPointFuture(point)),
+  [FilterType.PRESENT]: (points) => points.filter((point) => isPointPresent(point)),
+  [FilterType.PAST]: (points) => points.filter((point) => isPointPast(point)),
+};
+
 export {
   getRandomArrayElement,
   formatDate,
@@ -68,4 +76,5 @@ export {
   sortByTime,
   sortByPrice,
   getDuration,
+  filter,
 };
