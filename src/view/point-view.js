@@ -1,5 +1,6 @@
 import AbstractView from '../framework/view/abstract-view';
 import dayjs from 'dayjs';
+import he from 'he';
 import { getDuration } from '../utils.js';
 
 function createOffersTemplate(offers) {
@@ -21,6 +22,7 @@ function createPointTemplate(point, destination, offers) {
   const startTime = dayjs(point.dateFrom).format('HH:mm');
   const endTime = dayjs(point.dateTo).format('HH:mm');
   const duration = getDuration(point.dateFrom, point.dateTo);
+  const destinationName = destination ? he.encode(destination.name) : '';
 
   const favoriteClassName = point.isFavorite
     ? 'event__favorite-btn event__favorite-btn--active'
@@ -33,7 +35,7 @@ function createPointTemplate(point, destination, offers) {
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${point.type} ${destination.name}</h3>
+                <h3 class="event__title">${point.type} ${destinationName}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime="${point.dateFrom}">${startTime}</time>
