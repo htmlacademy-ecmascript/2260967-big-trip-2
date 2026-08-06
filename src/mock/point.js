@@ -30,7 +30,7 @@ const DESTINATIONS = [
   {
     id: 'destination-2',
     name: 'Geneva',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    description: 'Proin vestibulum neque eu ex euismod, sit amet pulvinar ante porta.',
     pictures: [
       {
         src: 'https://loremflickr.com/248/152?random=2',
@@ -41,7 +41,7 @@ const DESTINATIONS = [
   {
     id: 'destination-3',
     name: 'Chamonix',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    description: 'Mauris est nulla, elementum sit amet condimentum eget, molestie euismod dui.',
     pictures: [
       {
         src: 'https://loremflickr.com/248/152?random=3',
