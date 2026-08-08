@@ -2,7 +2,7 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import dayjs from 'dayjs';
 import flatpickr from 'flatpickr';
 import he from 'he';
-import { TYPES } from '../mock/point.js';
+import { TYPES } from '../const.js';
 import 'flatpickr/dist/flatpickr.min.css';
 
 function createTypesTemplate(currentType) {
@@ -56,7 +56,7 @@ function createPicturesTemplate(pictures) {
 
 function createPointEditTemplate(state, destinations, offers, isNewPoint) {
   const currentDestination = destinations.find((dest) => dest.id === state.destination);
-  const typeOffers = offers.filter((offer) => offer.type === state.type);
+  const typeOffers = offers.find((offer) => offer.type === state.type)?.offers ?? [];
 
   const startDate = dayjs(state.dateFrom).format('DD/MM/YY HH:mm');
   const endDate = dayjs(state.dateTo).format('DD/MM/YY HH:mm');

@@ -34,7 +34,7 @@ export default class PointPresenter {
     const prevPointEditComponent = this.#pointEditComponent;
 
     const destination = this.#pointsModel.getDestinationById(point.destination);
-    const offers = this.#pointsModel.getOffersByIds(point.offers);
+    const offers = this.#pointsModel.getOffersByIds(point.type, point.offers);
     const allDestinations = this.#pointsModel.destinations;
     const allOffers = this.#pointsModel.offers;
 

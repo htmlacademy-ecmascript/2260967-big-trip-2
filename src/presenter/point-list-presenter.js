@@ -1,6 +1,7 @@
 import PointSortView from '../view/point-sort-view.js';
 import PointListView from '../view/point-list-view.js';
 import EmptyListView from '../view/empty-list-view.js';
+import LoadingView from '../view/loading-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import { render, remove } from '../framework/render.js';
@@ -14,11 +15,13 @@ export default class PointListPresenter {
   #pointListViewComponent = new PointListView();
   #pointSortComponent = null;
   #emptyListComponent = null;
+  #loadingComponent = new LoadingView();
 
   #pointPresenters = new Map();
   #newPointPresenter = null;
   #currentSortType = SortType.DAY;
   #filterType = FilterType.EVERYTHING;
+  #isLoading = true;
 
   constructor(container, pointsModel, filterModel) {
     this.#container = container;
@@ -56,6 +59,7 @@ export default class PointListPresenter {
 
   createPoint(callback) {
     this.#handleNewPointFormClose = callback;
+
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
 
     if (this.#emptyListComponent) {
@@ -81,6 +85,11 @@ export default class PointListPresenter {
   };
 
   #renderBoard() {
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     if (this.points.length === 0) {
       this.#renderNoPoints();
       return;
@@ -98,6 +107,7 @@ export default class PointListPresenter {
     this.#pointPresenters.clear();
 
     remove(this.#pointSortComponent);
+    remove(this.#loadingComponent);
 
     if (this.#emptyListComponent) {
       remove(this.#emptyListComponent);
@@ -121,6 +131,10 @@ export default class PointListPresenter {
     render(this.#emptyListComponent, this.#container);
   }
 
+  #renderLoading() {
+    render(this.#loadingComponent, this.#container);
+  }
+
   #handleSortTypeChange = (sortType) => {
     if (sortType === this.#currentSortType) {
       return;
@@ -136,10 +150,10 @@ export default class PointListPresenter {
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#pointsModel.updatePoint(updateType, update);
+        await this.#pointsModel.updatePoint(updateType, update);
         break;
       case UserAction.ADD_POINT:
         this.#pointsModel.addPoint(updateType, update);
@@ -161,6 +175,11 @@ export default class PointListPresenter {
         break;
       case UpdateType.MAJOR:
         this.#clearBoard({ resetSortType: true });
+        this.#renderBoard();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        this.#clearBoard();
         this.#renderBoard();
         break;
     }

@@ -1,13 +1,18 @@
 import Observable from '../framework/observable.js';
 import {updateItem} from '../utils.js';
-import {generatePoint, DESTINATIONS, OFFERS} from '../mock/point.js';
+import {UpdateType} from '../const.js';
 
-const POINTS_COUNT = 3;
+export default class PointsModel extends Observable {
+  #pointsApiService = null;
 
-class PointsModel extends Observable {
-  #points = Array.from({length: POINTS_COUNT}, generatePoint);
-  #destinations = DESTINATIONS;
-  #offers = OFFERS;
+  #points = [];
+  #destinations = [];
+  #offers = [];
+
+  constructor({pointsApiService}) {
+    super();
+    this.#pointsApiService = pointsApiService;
+  }
 
   get points() {
     return this.#points;
@@ -25,17 +30,36 @@ class PointsModel extends Observable {
     return this.#destinations.find((destination) => destination.id === id);
   }
 
-  getOffersByIds(ids) {
-    return this.#offers.filter((offer) => ids.includes(offer.id));
-  }
-
   getOffersByType(type) {
-    return this.#offers.filter((offer) => offer.type === type);
+    const offersByType = this.#offers.find((offer) => offer.type === type);
+    return offersByType ? offersByType.offers : [];
   }
 
-  updatePoint(updateType, update) {
-    this.#points = updateItem(this.#points, update);
-    this._notify(updateType, update);
+  getOffersByIds(type, ids) {
+    const offersByType = this.getOffersByType(type);
+    return offersByType.filter((offer) => ids.includes(offer.id));
+  }
+
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#points = points.map(this.#adaptToClient);
+      this.#destinations = await this.#pointsApiService.destinations;
+      this.#offers = await this.#pointsApiService.offers;
+    } catch(err) {
+      this.#points = [];
+      this.#destinations = [];
+      this.#offers = [];
+    }
+
+    this._notify(UpdateType.INIT);
+  }
+
+  async updatePoint(updateType, update) {
+    const response = await this.#pointsApiService.updatePoint(update);
+    const updatedPoint = this.#adaptToClient(response);
+    this.#points = updateItem(this.#points, updatedPoint);
+    this._notify(updateType, updatedPoint);
   }
 
   addPoint(updateType, point) {
@@ -47,6 +71,21 @@ class PointsModel extends Observable {
     this.#points = this.#points.filter((item) => item.id !== point.id);
     this._notify(updateType, point);
   }
-}
 
-export default PointsModel;
+  #adaptToClient(point) {
+    const adaptedPoint = {
+      ...point,
+      basePrice: point['base_price'],
+      dateFrom: point['date_from'],
+      dateTo: point['date_to'],
+      isFavorite: point['is_favorite'],
+    };
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+
+    return adaptedPoint;
+  }
+}
