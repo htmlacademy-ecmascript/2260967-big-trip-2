@@ -5,23 +5,23 @@ import he from 'he';
 import { TYPES } from '../const.js';
 import 'flatpickr/dist/flatpickr.min.css';
 
-function createTypesTemplate(currentType) {
+function createTypesTemplate(currentType, isDisabled) {
   return TYPES.map((type) => `
     <div class="event__type-item">
-      <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${type === currentType ? 'checked' : ''}>
+      <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${type === currentType ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
       <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type.charAt(0).toUpperCase() + type.slice(1)}</label>
     </div>
   `).join('');
 }
 
-function createOffersTemplate(offers, checkedOfferIds) {
+function createOffersTemplate(offers, checkedOfferIds, isDisabled) {
   if (!offers.length) {
     return '';
   }
 
   const items = offers.map((offer) => `
     <div class="event__offer-selector">
-      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" data-offer-id="${offer.id}" ${checkedOfferIds.includes(offer.id) ? 'checked' : ''}>
+      <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" data-offer-id="${offer.id}" ${checkedOfferIds.includes(offer.id) ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
       <label class="event__offer-label" for="event-offer-${offer.id}">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
@@ -61,7 +61,12 @@ function createPointEditTemplate(state, destinations, offers, isNewPoint) {
   const startDate = dayjs(state.dateFrom).format('DD/MM/YY HH:mm');
   const endDate = dayjs(state.dateTo).format('DD/MM/YY HH:mm');
 
-  const resetButtonText = isNewPoint ? 'Cancel' : 'Delete';
+  let saveDeleteButtonText;
+  if (isNewPoint) {
+    saveDeleteButtonText = 'Cancel';
+  } else {
+    saveDeleteButtonText = state.isDeleting ? 'Deleting...' : 'Delete';
+  }
 
   const rollupButtonTemplate = isNewPoint
     ? ''
@@ -80,41 +85,41 @@ function createPointEditTemplate(state, destinations, offers, isNewPoint) {
               <span class="visually-hidden">Choose event type</span>
               <img class="event__type-icon" width="17" height="17" src="img/icons/${state.type}.png" alt="Event type icon">
             </label>
-            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${state.isDisabled ? 'disabled' : ''}>
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-                ${createTypesTemplate(state.type)}
+                ${createTypesTemplate(state.type, state.isDisabled)}
               </fieldset>
             </div>
           </div>
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">${state.type}</label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationName}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationName}" list="destination-list-1" ${state.isDisabled ? 'disabled' : ''}>
             <datalist id="destination-list-1">
               ${destinations.map((dest) => `<option value="${dest.name}"></option>`).join('')}
             </datalist>
           </div>
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startDate}">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startDate}" ${state.isDisabled ? 'disabled' : ''}>
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endDate}">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endDate}" ${state.isDisabled ? 'disabled' : ''}>
           </div>
           <div class="event__field-group  event__field-group--price">
             <label class="event__label" for="event-price-1">
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" min="0" value="${state.basePrice}">
+            <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" min="0" value="${state.basePrice}" ${state.isDisabled ? 'disabled' : ''}>
           </div>
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">${resetButtonText}</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${state.isDisabled ? 'disabled' : ''}>${state.isSaving ? 'Saving...' : 'Save'}</button>
+          <button class="event__reset-btn" type="reset" ${state.isDisabled ? 'disabled' : ''}>${saveDeleteButtonText}</button>
           ${rollupButtonTemplate}
         </header>
         <section class="event__details">
-          ${createOffersTemplate(typeOffers, state.offers)}
+          ${createOffersTemplate(typeOffers, state.offers, state.isDisabled)}
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
             <p class="event__destination-description">${destinationDescription}</p>
@@ -283,10 +288,21 @@ export default class PointEditView extends AbstractStatefulView {
   }
 
   static parsePointToState(point) {
-    return { ...point };
+    return {
+      ...point,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    };
   }
 
   static parseStateToPoint(state) {
-    return { ...state };
+    const point = { ...state };
+
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
+
+    return point;
   }
 }

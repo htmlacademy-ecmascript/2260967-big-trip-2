@@ -1,15 +1,17 @@
 import PointEditView from '../view/point-edit-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType } from '../const.js';
-import { nanoid } from 'nanoid';
+
 
 function createBlankPoint() {
+  const now = new Date();
+  const later = new Date(now.getTime() + 60 * 60 * 1000);
+
   return {
-    id: nanoid(),
     type: 'flight',
     destination: null,
-    dateFrom: new Date().toISOString(),
-    dateTo: new Date().toISOString(),
+    dateFrom: now.toISOString(),
+    dateTo: later.toISOString(),
     basePrice: 0,
     offers: [],
     isFavorite: false,
@@ -68,13 +70,31 @@ export default class NewPointPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
+  setSaving() {
+    this.#pointEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#pointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointEditComponent.shake(resetFormState);
+  }
+
   #handleFormSubmit = (point) => {
     this.#handleDataChange(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
       point,
     );
-    this.destroy();
   };
 
   #handleCancelClick = () => {
