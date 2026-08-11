@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { FilterType } from './const.js';
 
 function getRandomArrayElement(items) {
   return items[Math.floor(Math.random() * items.length)];
@@ -41,6 +42,29 @@ function sortByPrice(pointA, pointB) {
   return pointB.basePrice - pointA.basePrice;
 }
 
+function getDuration(dateFrom, dateTo) {
+  const totalMinutes = dayjs(dateTo).diff(dayjs(dateFrom), 'minute');
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  const mm = String(minutes).padStart(2, '0');
+
+  if (hours === 0) {
+    return `${mm}M`;
+  }
+
+  const hh = String(hours).padStart(2, '0');
+  return `${hh}H ${mm}M`;
+}
+
+const filter = {
+  [FilterType.EVERYTHING]: (points) => [...points],
+  [FilterType.FUTURE]: (points) => points.filter((point) => isPointFuture(point)),
+  [FilterType.PRESENT]: (points) => points.filter((point) => isPointPresent(point)),
+  [FilterType.PAST]: (points) => points.filter((point) => isPointPast(point)),
+};
+
 export {
   getRandomArrayElement,
   formatDate,
@@ -51,4 +75,6 @@ export {
   sortByDay,
   sortByTime,
   sortByPrice,
+  getDuration,
+  filter,
 };
