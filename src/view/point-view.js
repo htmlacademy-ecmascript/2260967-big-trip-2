@@ -2,6 +2,7 @@ import AbstractView from '../framework/view/abstract-view';
 import dayjs from 'dayjs';
 import he from 'he';
 import { getDuration } from '../utils.js';
+import { DateFormat } from '../const.js';
 
 function createOffersTemplate(offers) {
   if (!offers || offers.length === 0) {
@@ -9,7 +10,7 @@ function createOffersTemplate(offers) {
   }
   return offers.map((offer) => `
     <li class="event__offer">
-      <span class="event__offer-title">${offer.title}</span>
+    <span class="event__offer-title">${he.encode(offer.title)}</span>
       &plus;&euro;&nbsp;
       <span class="event__offer-price">${offer.price}</span>
     </li>
@@ -17,10 +18,10 @@ function createOffersTemplate(offers) {
 }
 
 function createPointTemplate(point, destination, offers) {
-  const dateForAttribute = dayjs(point.dateFrom).format('YYYY-MM-DD');
-  const dateLabel = dayjs(point.dateFrom).format('MMM DD').toUpperCase();
-  const startTime = dayjs(point.dateFrom).format('HH:mm');
-  const endTime = dayjs(point.dateTo).format('HH:mm');
+  const dateForAttribute = dayjs(point.dateFrom).format(DateFormat.ATTRIBUTE_DATE);
+  const dateLabel = dayjs(point.dateFrom).format(DateFormat.MONTH_DAY).toUpperCase();
+  const startTime = dayjs(point.dateFrom).format(DateFormat.TIME);
+  const endTime = dayjs(point.dateTo).format(DateFormat.TIME);
   const duration = getDuration(point.dateFrom, point.dateTo);
   const destinationName = destination ? he.encode(destination.name) : '';
 
@@ -35,7 +36,7 @@ function createPointTemplate(point, destination, offers) {
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${point.type} ${destinationName}</h3>
+                <h3 class="event__title">${he.encode(point.type)} ${destinationName}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime="${point.dateFrom}">${startTime}</time>

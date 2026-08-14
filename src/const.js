@@ -10,6 +10,18 @@ const TYPES = [
   'restaurant',
 ];
 
+const DEFAULT_POINT_TYPE = 'flight';
+
+const MAX_VISIBLE_CITIES = 3;
+
+const DateFormat = {
+  EDIT_DATE_TIME: 'DD/MM/YY HH:mm',
+  FLATPICKR: 'd/m/y H:i',
+  ATTRIBUTE_DATE: 'YYYY-MM-DD',
+  MONTH_DAY: 'MMM DD',
+  TIME: 'HH:mm',
+};
+
 const SortType = {
   DAY: 'day',
   TIME: 'time',
@@ -36,4 +48,13 @@ const UpdateType = {
   INIT: 'INIT',
 };
 
-export {TYPES, SortType, FilterType, UserAction, UpdateType};
+export {
+  TYPES,
+  DEFAULT_POINT_TYPE,
+  MAX_VISIBLE_CITIES,
+  DateFormat,
+  SortType,
+  FilterType,
+  UserAction,
+  UpdateType,
+};

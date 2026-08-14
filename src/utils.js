@@ -1,14 +1,18 @@
 import dayjs from 'dayjs';
 import { FilterType } from './const.js';
 
-function getRandomArrayElement(items) {
-  return items[Math.floor(Math.random() * items.length)];
-}
+const MINUTES_IN_HOUR = 60;
+const HOURS_IN_DAY = 24;
+const MINUTES_IN_DAY = MINUTES_IN_HOUR * HOURS_IN_DAY;
+const TIME_PAD_LENGTH = 2;
+const TIME_PAD_CHAR = '0';
+const LOCALE = 'en-US';
+const MONTH_FORMAT = { month: 'short' };
 
 function formatDate(dateString) {
   const date = new Date(dateString);
   const day = date.getDate();
-  const month = date.toLocaleString('en-US', {month: 'short'}).toUpperCase();
+  const month = date.toLocaleString(LOCALE, MONTH_FORMAT).toUpperCase();
   return `${day} ${month}`;
 }
 
@@ -45,17 +49,24 @@ function sortByPrice(pointA, pointB) {
 function getDuration(dateFrom, dateTo) {
   const totalMinutes = dayjs(dateTo).diff(dayjs(dateFrom), 'minute');
 
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
+  const days = Math.floor(totalMinutes / MINUTES_IN_DAY);
+  const hours = Math.floor((totalMinutes % MINUTES_IN_DAY) / MINUTES_IN_HOUR);
+  const minutes = totalMinutes % MINUTES_IN_HOUR;
 
-  const mm = String(minutes).padStart(2, '0');
+  const paddedMinutes = String(minutes).padStart(TIME_PAD_LENGTH, TIME_PAD_CHAR);
 
-  if (hours === 0) {
-    return `${mm}M`;
+  if (days > 0) {
+    const paddedDays = String(days).padStart(TIME_PAD_LENGTH, TIME_PAD_CHAR);
+    const paddedHours = String(hours).padStart(TIME_PAD_LENGTH, TIME_PAD_CHAR);
+    return `${paddedDays}D ${paddedHours}H ${paddedMinutes}M`;
   }
 
-  const hh = String(hours).padStart(2, '0');
-  return `${hh}H ${mm}M`;
+  if (hours > 0) {
+    const paddedHours = String(hours).padStart(TIME_PAD_LENGTH, TIME_PAD_CHAR);
+    return `${paddedHours}H ${paddedMinutes}M`;
+  }
+
+  return `${paddedMinutes}M`;
 }
 
 const filter = {
@@ -65,16 +76,16 @@ const filter = {
   [FilterType.PAST]: (points) => points.filter((point) => isPointPast(point)),
 };
 
+function isEscapeKey(evt) {
+  return evt.key === 'Escape';
+}
 export {
-  getRandomArrayElement,
   formatDate,
-  isPointFuture,
-  isPointPresent,
-  isPointPast,
   updateItem,
   sortByDay,
   sortByTime,
   sortByPrice,
   getDuration,
+  isEscapeKey,
   filter,
 };

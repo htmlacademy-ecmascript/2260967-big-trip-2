@@ -1,14 +1,16 @@
 import PointEditView from '../view/point-edit-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
-import { UserAction, UpdateType } from '../const.js';
+import { UserAction, UpdateType, DEFAULT_POINT_TYPE } from '../const.js';
+import { isEscapeKey } from '../utils.js';
 
+const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
 
 function createBlankPoint() {
   const now = new Date();
-  const later = new Date(now.getTime() + 60 * 60 * 1000);
+  const later = new Date(now.getTime() + MILLISECONDS_IN_HOUR);
 
   return {
-    type: 'flight',
+    type: DEFAULT_POINT_TYPE,
     destination: null,
     dateFrom: now.toISOString(),
     dateTo: later.toISOString(),
@@ -62,12 +64,12 @@ export default class NewPointPresenter {
       return;
     }
 
-    this.#handleDestroy();
-
     remove(this.#pointEditComponent);
     this.#pointEditComponent = null;
 
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+
+    this.#handleDestroy();
   }
 
   setSaving() {
@@ -102,9 +104,10 @@ export default class NewPointPresenter {
   };
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.destroy();
     }
   };
 }
+

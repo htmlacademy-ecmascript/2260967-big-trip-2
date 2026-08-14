@@ -5,7 +5,7 @@ import TripInfoPresenter from './presenter/trip-info-presenter.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
 
-const AUTHORIZATION = 'Basic tr3fkbjfj45hggdh';
+const AUTHORIZATION = 'Basic tr3fkbjfj45hgrty';
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
 const pageHeader = document.querySelector('.page-header');

@@ -2,6 +2,7 @@ import PointSortView from '../view/point-sort-view.js';
 import PointListView from '../view/point-list-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import LoadingView from '../view/loading-view.js';
+import ErrorView from '../view/error-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
@@ -22,12 +23,14 @@ export default class PointListPresenter {
   #pointSortComponent = null;
   #emptyListComponent = null;
   #loadingComponent = new LoadingView();
+  #errorComponent = new ErrorView();
 
   #pointPresenters = new Map();
   #newPointPresenter = null;
   #currentSortType = SortType.DAY;
   #filterType = FilterType.EVERYTHING;
   #isLoading = true;
+  #handleNewPointFormClose = null;
 
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
@@ -82,22 +85,14 @@ export default class PointListPresenter {
     this.#newPointPresenter.init();
   }
 
-  #handleNewPointFormClose = null;
-
-  #handleNewPointDestroy = () => {
-    if (this.#handleNewPointFormClose) {
-      this.#handleNewPointFormClose();
-    }
-
-    if (this.points.length === 0) {
-      this.#clearBoard();
-      this.#renderBoard();
-    }
-  };
-
   #renderBoard() {
     if (this.#isLoading) {
       this.#renderLoading();
+      return;
+    }
+
+    if (this.#pointsModel.isLoadingFailed) {
+      render(this.#errorComponent, this.#container);
       return;
     }
 
@@ -119,10 +114,8 @@ export default class PointListPresenter {
 
     remove(this.#pointSortComponent);
     remove(this.#loadingComponent);
-
-    if (this.#emptyListComponent) {
-      remove(this.#emptyListComponent);
-    }
+    remove(this.#errorComponent);
+    remove(this.#emptyListComponent);
 
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
@@ -145,6 +138,34 @@ export default class PointListPresenter {
   #renderLoading() {
     render(this.#loadingComponent, this.#container);
   }
+
+  #renderPoints() {
+    this.points.forEach((point) => {
+      this.#renderPoint(point);
+    });
+  }
+
+  #renderPoint(point) {
+    const pointPresenter = new PointPresenter(
+      this.#pointListViewComponent.element,
+      this.#pointsModel,
+      this.#handleViewAction,
+      this.#handleModeChange,
+    );
+    pointPresenter.init(point);
+    this.#pointPresenters.set(point.id, pointPresenter);
+  }
+
+  #handleNewPointDestroy = () => {
+    if (this.#handleNewPointFormClose) {
+      this.#handleNewPointFormClose();
+    }
+
+    if (this.points.length === 0) {
+      this.#clearBoard();
+      this.#renderBoard();
+    }
+  };
 
   #handleSortTypeChange = (sortType) => {
     if (sortType === this.#currentSortType) {
@@ -214,21 +235,4 @@ export default class PointListPresenter {
         break;
     }
   };
-
-  #renderPoints() {
-    this.points.forEach((point) => {
-      this.#renderPoint(point);
-    });
-  }
-
-  #renderPoint(point) {
-    const pointPresenter = new PointPresenter(
-      this.#pointListViewComponent.element,
-      this.#pointsModel,
-      this.#handleViewAction,
-      this.#handleModeChange,
-    );
-    pointPresenter.init(point);
-    this.#pointPresenters.set(point.id, pointPresenter);
-  }
 }

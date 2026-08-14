@@ -1,11 +1,13 @@
 import TripInfoView from '../view/trip-info-view.js';
 import { render, replace, remove, RenderPosition } from '../framework/render.js';
-import { formatDate } from '../utils.js';
+import { formatDate, sortByDay } from '../utils.js';
+import { MAX_VISIBLE_CITIES } from '../const.js';
+import he from 'he';
 
 export default class TripInfoPresenter {
   #container;
   #pointsModel;
-  #tripInfoComponent = null;
+  #component = null;
 
   constructor(container, pointsModel) {
     this.#container = container;
@@ -15,16 +17,14 @@ export default class TripInfoPresenter {
   }
 
   init() {
-    const points = [...this.#pointsModel.points].sort(
-      (a, b) => new Date(a.dateFrom) - new Date(b.dateFrom),
-    );
+    const points = [...this.#pointsModel.points].sort(sortByDay);
 
-    const prevComponent = this.#tripInfoComponent;
+    const prevComponent = this.#component;
 
     if (points.length === 0) {
       if (prevComponent) {
         remove(prevComponent);
-        this.#tripInfoComponent = null;
+        this.#component = null;
       }
       return;
     }
@@ -33,27 +33,24 @@ export default class TripInfoPresenter {
     const datesText = this.#getDatesText(points);
     const totalCost = this.#getTotalCost(points);
 
-    this.#tripInfoComponent = new TripInfoView(citiesText, datesText, totalCost);
+    this.#component = new TripInfoView(citiesText, datesText, totalCost);
 
     if (prevComponent === null) {
-      render(this.#tripInfoComponent, this.#container, RenderPosition.AFTERBEGIN);
+      render(this.#component, this.#container, RenderPosition.AFTERBEGIN);
       return;
     }
 
-    replace(this.#tripInfoComponent, prevComponent);
+    replace(this.#component, prevComponent);
     remove(prevComponent);
   }
 
-  #handleModelEvent = () => {
-    this.init();
-  };
-
   #getCitiesText(points) {
-    const cities = points.map(
-      (point) => this.#pointsModel.getDestinationById(point.destination)?.name ?? '',
-    );
+    const cities = points.map((point) => {
+      const name = this.#pointsModel.getDestinationById(point.destination)?.name ?? '';
+      return he.encode(name);
+    });
 
-    if (cities.length <= 3) {
+    if (cities.length <= MAX_VISIBLE_CITIES) {
       return cities.join(' &mdash; ');
     }
 
@@ -67,11 +64,15 @@ export default class TripInfoPresenter {
   }
 
   #getTotalCost(points) {
-    return points.reduce((sum, point) => {
+    return points.reduce((totalSum, point) => {
       const offersPrice = this.#pointsModel
         .getOffersByIds(point.type, point.offers)
-        .reduce((acc, offer) => acc + offer.price, 0);
-      return sum + point.basePrice + offersPrice;
+        .reduce((offersSum, offer) => offersSum + offer.price, 0);
+      return totalSum + point.basePrice + offersPrice;
     }, 0);
   }
+
+  #handleModelEvent = () => {
+    this.init();
+  };
 }

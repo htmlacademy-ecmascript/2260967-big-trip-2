@@ -8,6 +8,7 @@ export default class PointsModel extends Observable {
   #points = [];
   #destinations = [];
   #offers = [];
+  #isLoadingFailed = false;
 
   constructor({pointsApiService}) {
     super();
@@ -24,6 +25,10 @@ export default class PointsModel extends Observable {
 
   get offers() {
     return this.#offers;
+  }
+
+  get isLoadingFailed() {
+    return this.#isLoadingFailed;
   }
 
   getDestinationById(id) {
@@ -50,6 +55,7 @@ export default class PointsModel extends Observable {
       this.#points = [];
       this.#destinations = [];
       this.#offers = [];
+      this.#isLoadingFailed = true;
     }
 
     this._notify(UpdateType.INIT);
