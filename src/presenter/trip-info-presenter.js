@@ -22,10 +22,8 @@ export default class TripInfoPresenter {
     const prevComponent = this.#component;
 
     if (points.length === 0) {
-      if (prevComponent) {
-        remove(prevComponent);
-        this.#component = null;
-      }
+      remove(prevComponent);
+      this.#component = null;
       return;
     }
 

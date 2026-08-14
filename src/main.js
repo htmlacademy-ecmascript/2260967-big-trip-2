@@ -2,38 +2,41 @@ import PointsApiService from './points-api-service.js';
 import PointListPresenter from './presenter/point-list-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import TripInfoPresenter from './presenter/trip-info-presenter.js';
+import NewPointButtonView from './view/new-point-button-view.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
+import { render } from './framework/render.js';
 
 const AUTHORIZATION = 'Basic tr3fkbjfj45hgrty';
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
-const pageHeader = document.querySelector('.page-header');
-const tripMainBlock = pageHeader.querySelector('.trip-main');
-const filtersBlock = pageHeader.querySelector('.trip-controls__filters');
-const newEventButton = pageHeader.querySelector('.trip-main__event-add-btn');
-const pageMain = document.querySelector('.page-main');
-const eventsSection = pageMain.querySelector('.trip-events');
+const pageHeaderElement = document.querySelector('.page-header');
+const tripMainElement = pageHeaderElement.querySelector('.trip-main');
+const filtersElement = pageHeaderElement.querySelector('.trip-controls__filters');
+const pageMainElement = document.querySelector('.page-main');
+const eventsElement = pageMainElement.querySelector('.trip-events');
 
 const pointsModel = new PointsModel({
   pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION),
 });
 const filterModel = new FilterModel();
 
-const filterPresenter = new FilterPresenter(filtersBlock, filterModel, pointsModel);
-const tripInfoPresenter = new TripInfoPresenter(tripMainBlock, pointsModel);
-const pointListPresenter = new PointListPresenter(eventsSection, pointsModel, filterModel);
+const filterPresenter = new FilterPresenter(filtersElement, filterModel, pointsModel);
+const tripInfoPresenter = new TripInfoPresenter(tripMainElement, pointsModel);
+const pointListPresenter = new PointListPresenter(eventsElement, pointsModel, filterModel);
+
+const newPointButtonComponent = new NewPointButtonView(handleNewPointButtonClick);
 
 function handleNewPointFormClose() {
-  newEventButton.disabled = false;
+  newPointButtonComponent.setDisabled(false);
 }
 
-function handleNewEventButtonClick() {
+function handleNewPointButtonClick() {
   pointListPresenter.createPoint(handleNewPointFormClose);
-  newEventButton.disabled = true;
+  newPointButtonComponent.setDisabled(true);
 }
 
-newEventButton.addEventListener('click', handleNewEventButtonClick);
+render(newPointButtonComponent, tripMainElement);
 
 filterPresenter.init();
 tripInfoPresenter.init();

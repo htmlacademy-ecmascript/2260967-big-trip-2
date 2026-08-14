@@ -273,7 +273,7 @@ export default class PointEditView extends AbstractStatefulView {
 
   #priceChangeHandler = (evt) => {
     this._setState({
-      basePrice: evt.target.valueAsNumber,
+      basePrice: evt.target.valueAsNumber || 0,
     });
   };
 

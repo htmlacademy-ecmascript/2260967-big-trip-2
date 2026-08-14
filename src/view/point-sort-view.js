@@ -11,13 +11,13 @@ const SORT_ITEMS = [
 
 function createSortItemTemplate(item, currentSortType) {
   const { type, label, isEnabled } = item;
-  const isChecked = isEnabled && type === currentSortType ? 'checked' : '';
-  const isDisabled = isEnabled ? '' : 'disabled';
+  const checkedAttribute = isEnabled && type === currentSortType ? 'checked' : '';
+  const disabledAttribute = isEnabled ? '' : 'disabled';
   const dataAttribute = isEnabled ? `data-sort-type="${type}"` : '';
 
   return `
     <div class="trip-sort__item  trip-sort__item--${type}">
-      <input id="sort-${type}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${type}" ${dataAttribute} ${isChecked} ${isDisabled}>
+      <input id="sort-${type}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${type}" ${dataAttribute} ${checkedAttribute} ${disabledAttribute}>
       <label class="trip-sort__btn" for="sort-${type}">${label}</label>
     </div>
   `;

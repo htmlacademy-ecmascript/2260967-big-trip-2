@@ -16,9 +16,9 @@ const TimeLimit = {
 };
 
 export default class PointListPresenter {
-  #container;
-  #pointsModel;
-  #filterModel;
+  #container = null;
+  #pointsModel = null;
+  #filterModel = null;
   #pointListViewComponent = new PointListView();
   #pointSortComponent = null;
   #emptyListComponent = null;
