@@ -83,11 +83,13 @@ function createPointEditTemplate(state, destinations, offers, isNewPoint) {
   const currentDestination = destinations.find((destination) => destination.id === state.destination);
   const typeOffers = offers.find((offer) => offer.type === state.type)?.offers ?? [];
 
-  const startDate = dayjs(state.dateFrom).format(DateFormat.EDIT_DATE_TIME);
-  const endDate = dayjs(state.dateTo).format(DateFormat.EDIT_DATE_TIME);
+  const startDate = state.dateFrom ? dayjs(state.dateFrom).format(DateFormat.EDIT_DATE_TIME) : '';
+  const endDate = state.dateTo ? dayjs(state.dateTo).format(DateFormat.EDIT_DATE_TIME) : '';
 
   const editButtonText = state.isDeleting ? 'Deleting...' : 'Delete';
   const resetButtonText = isNewPoint ? 'Cancel' : editButtonText;
+
+  const isSubmitDisabled = !state.destination || !state.dateFrom || !state.dateTo || !state.basePrice;
 
   const rollupButtonTemplate = isNewPoint
     ? ''
@@ -134,8 +136,8 @@ function createPointEditTemplate(state, destinations, offers, isNewPoint) {
             </label>
             <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" min="0" value="${state.basePrice}" ${state.isDisabled ? 'disabled' : ''}>
           </div>
-          <button class="event__save-btn  btn  btn--blue" type="submit" ${state.isDisabled ? 'disabled' : ''}>${state.isSaving ? 'Saving...' : 'Save'}</button>
-          <button class="event__reset-btn" type="reset" ${state.isDisabled ? 'disabled' : ''}>${resetButtonText}</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${state.isDisabled || isSubmitDisabled ? 'disabled' : ''}>${state.isSaving ? 'Saving...' : 'Save'}</button>
+          <button class="event__reset-btn" type="reset" ${state.isDisabled ? 'style="pointer-events: none;"' : ''}>${resetButtonText}</button>
           ${rollupButtonTemplate}
         </header>
         <section class="event__details">
@@ -240,6 +242,12 @@ export default class PointEditView extends AbstractStatefulView {
     );
   }
 
+  #updateSaveButtonState() {
+    const saveButton = this.element.querySelector('.event__save-btn');
+    const isValid = this._state.destination && this._state.dateFrom && this._state.dateTo && this._state.basePrice;
+    saveButton.disabled = !isValid;
+  }
+
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(PointEditView.parseStateToPoint(this._state));
@@ -275,6 +283,7 @@ export default class PointEditView extends AbstractStatefulView {
     this._setState({
       basePrice: evt.target.valueAsNumber || 0,
     });
+    this.#updateSaveButtonState();
   };
 
   #offersChangeHandler = (evt) => {
@@ -295,6 +304,7 @@ export default class PointEditView extends AbstractStatefulView {
       dateFrom: userDate.toISOString(),
     });
     this.#datepickerTo.set('minDate', userDate);
+    this.#updateSaveButtonState();
   };
 
   #dateToChangeHandler = ([userDate]) => {
@@ -302,6 +312,7 @@ export default class PointEditView extends AbstractStatefulView {
       dateTo: userDate.toISOString(),
     });
     this.#datepickerFrom.set('maxDate', userDate);
+    this.#updateSaveButtonState();
   };
 
   static parsePointToState(point) {

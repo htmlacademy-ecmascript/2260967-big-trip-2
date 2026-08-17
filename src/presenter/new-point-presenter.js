@@ -3,17 +3,12 @@ import { render, remove, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType, DEFAULT_POINT_TYPE } from '../const.js';
 import { isEscapeKey } from '../utils.js';
 
-const MILLISECONDS_IN_HOUR = 60 * 60 * 1000;
-
 function createBlankPoint() {
-  const now = new Date();
-  const later = new Date(now.getTime() + MILLISECONDS_IN_HOUR);
-
   return {
     type: DEFAULT_POINT_TYPE,
     destination: null,
-    dateFrom: now.toISOString(),
-    dateTo: later.toISOString(),
+    dateFrom: null,
+    dateTo: null,
     basePrice: 0,
     offers: [],
     isFavorite: false,
