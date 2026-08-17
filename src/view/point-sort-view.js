@@ -1,34 +1,37 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { SortType } from '../const.js';
 
-function createPointSortForm(currentSortType) {
+const SORT_ITEMS = [
+  { type: SortType.DAY, label: 'Day', isEnabled: true },
+  { type: 'event', label: 'Event', isEnabled: false },
+  { type: SortType.TIME, label: 'Time', isEnabled: true },
+  { type: SortType.PRICE, label: 'Price', isEnabled: true },
+  { type: 'offer', label: 'Offers', isEnabled: false },
+];
+
+function createSortItemTemplate(item, currentSortType) {
+  const { type, label, isEnabled } = item;
+  const checkedAttribute = isEnabled && type === currentSortType ? 'checked' : '';
+  const disabledAttribute = isEnabled ? '' : 'disabled';
+  const dataAttribute = isEnabled ? `data-sort-type="${type}"` : '';
+
   return `
-     <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
-            <div class="trip-sort__item  trip-sort__item--day">
-              <input id="sort-day" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-day" data-sort-type="day" ${currentSortType === SortType.DAY ? 'checked' : ''}>
-              <label class="trip-sort__btn" for="sort-day">Day</label>
-            </div>
+    <div class="trip-sort__item  trip-sort__item--${type}">
+      <input id="sort-${type}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${type}" ${dataAttribute} ${checkedAttribute} ${disabledAttribute}>
+      <label class="trip-sort__btn" for="sort-${type}">${label}</label>
+    </div>
+  `;
+}
 
-            <div class="trip-sort__item  trip-sort__item--event">
-              <input id="sort-event" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-event" disabled>
-              <label class="trip-sort__btn" for="sort-event">Event</label>
-            </div>
+function createPointSortForm(currentSortType) {
+  const itemsTemplate = SORT_ITEMS
+    .map((item) => createSortItemTemplate(item, currentSortType))
+    .join('');
 
-            <div class="trip-sort__item  trip-sort__item--time">
-              <input id="sort-time" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-time" data-sort-type="time" ${currentSortType === SortType.TIME ? 'checked' : ''}>
-              <label class="trip-sort__btn" for="sort-time">Time</label>
-            </div>
-
-            <div class="trip-sort__item  trip-sort__item--price">
-              <input id="sort-price" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-price" data-sort-type="price" ${currentSortType === SortType.PRICE ? 'checked' : ''}>
-              <label class="trip-sort__btn" for="sort-price">Price</label>
-            </div>
-
-            <div class="trip-sort__item  trip-sort__item--offer">
-              <input id="sort-offer" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-offer" disabled>
-              <label class="trip-sort__btn" for="sort-offer">Offers</label>
-            </div>
-          </form>
+  return `
+    <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
+      ${itemsTemplate}
+    </form>
   `;
 }
 

@@ -3,7 +3,7 @@ import { render, replace, remove } from '../framework/render.js';
 import { FilterType, UpdateType } from '../const.js';
 import { filter } from '../utils.js';
 
-const FILTER_NAMES = {
+const FilterName = {
   [FilterType.EVERYTHING]: 'Everything',
   [FilterType.FUTURE]: 'Future',
   [FilterType.PRESENT]: 'Present',
@@ -11,10 +11,10 @@ const FILTER_NAMES = {
 };
 
 export default class FilterPresenter {
-  #container;
-  #filterModel;
-  #pointsModel;
-  #filterComponent = null;
+  #container = null;
+  #filterModel = null;
+  #pointsModel = null;
+  #component = null;
 
   constructor(container, filterModel, pointsModel) {
     this.#container = container;
@@ -30,7 +30,7 @@ export default class FilterPresenter {
 
     return Object.values(FilterType).map((type) => ({
       type,
-      name: FILTER_NAMES[type],
+      name: FilterName[type],
       count: filter[type](points).length,
     }));
   }
@@ -39,21 +39,21 @@ export default class FilterPresenter {
     const filters = this.filters;
     const currentFilterType = this.#filterModel.filter;
 
-    const prevFilterComponent = this.#filterComponent;
+    const prevComponent = this.#component;
 
-    this.#filterComponent = new TripFilterView(
+    this.#component = new TripFilterView(
       filters,
       currentFilterType,
       this.#handleFilterTypeChange,
     );
 
-    if (prevFilterComponent === null) {
-      render(this.#filterComponent, this.#container);
+    if (prevComponent === null) {
+      render(this.#component, this.#container);
       return;
     }
 
-    replace(this.#filterComponent, prevFilterComponent);
-    remove(prevFilterComponent);
+    replace(this.#component, prevComponent);
+    remove(prevComponent);
   }
 
   #handleModelEvent = () => {
@@ -68,3 +68,4 @@ export default class FilterPresenter {
     this.#filterModel.setFilter(UpdateType.MAJOR, filterType);
   };
 }
+

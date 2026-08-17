@@ -3,7 +3,7 @@ import AbstractView from '../framework/view/abstract-view.js';
 function createFilterItemTemplate(filter, currentFilterType) {
   const { type, name, count } = filter;
   const isChecked = type === currentFilterType ? 'checked' : '';
-  const isDisabled = count === 0 && type !== currentFilterType ? 'disabled' : '';
+  const isDisabled = count === 0 ? 'disabled' : '';
 
   return `
     <div class="trip-filters__filter">

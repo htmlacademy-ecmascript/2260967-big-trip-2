@@ -1,15 +1,14 @@
 import PointEditView from '../view/point-edit-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
-import { UserAction, UpdateType } from '../const.js';
-import { nanoid } from 'nanoid';
+import { UserAction, UpdateType, DEFAULT_POINT_TYPE } from '../const.js';
+import { isEscapeKey } from '../utils.js';
 
 function createBlankPoint() {
   return {
-    id: nanoid(),
-    type: 'flight',
+    type: DEFAULT_POINT_TYPE,
     destination: null,
-    dateFrom: new Date().toISOString(),
-    dateTo: new Date().toISOString(),
+    dateFrom: null,
+    dateTo: null,
     basePrice: 0,
     offers: [],
     isFavorite: false,
@@ -60,12 +59,31 @@ export default class NewPointPresenter {
       return;
     }
 
-    this.#handleDestroy();
-
     remove(this.#pointEditComponent);
     this.#pointEditComponent = null;
 
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+
+    this.#handleDestroy();
+  }
+
+  setSaving() {
+    this.#pointEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#pointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointEditComponent.shake(resetFormState);
   }
 
   #handleFormSubmit = (point) => {
@@ -74,7 +92,6 @@ export default class NewPointPresenter {
       UpdateType.MINOR,
       point,
     );
-    this.destroy();
   };
 
   #handleCancelClick = () => {
@@ -82,9 +99,10 @@ export default class NewPointPresenter {
   };
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.destroy();
     }
   };
 }
+
