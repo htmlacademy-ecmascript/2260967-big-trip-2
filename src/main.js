@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import PointsApiService from './points-api-service.js';
 import PointListPresenter from './presenter/point-list-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
@@ -7,7 +8,7 @@ import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
 import { render } from './framework/render.js';
 
-const AUTHORIZATION = 'Basic tr3fkbjfj45hgrty';
+const AUTHORIZATION = `Basic ${nanoid()}`;
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
 const pageHeaderElement = document.querySelector('.page-header');
