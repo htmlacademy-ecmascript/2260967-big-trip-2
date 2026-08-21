@@ -1,11 +1,11 @@
 import AbstractView from '../framework/view/abstract-view';
 import dayjs from 'dayjs';
 import he from 'he';
-import { getDuration } from '../utils.js';
+import { getDuration, getSafeType } from '../utils.js';
 import { DateFormat } from '../const.js';
 
 function createOffersTemplate(offers) {
-  if (!offers || offers.length === 0) {
+  if (offers.length === 0) {
     return '';
   }
   return offers.map((offer) => `
@@ -24,6 +24,7 @@ function createPointTemplate(point, destination, offers) {
   const endTime = dayjs(point.dateTo).format(DateFormat.TIME);
   const duration = getDuration(point.dateFrom, point.dateTo);
   const destinationName = destination ? he.encode(destination.name) : '';
+  const eventType = getSafeType(point.type);
 
   const favoriteClassName = point.isFavorite
     ? 'event__favorite-btn event__favorite-btn--active'
@@ -34,14 +35,14 @@ function createPointTemplate(point, destination, offers) {
               <div class="event">
               <time class="event__date" datetime="${dateForAttribute}">${dateLabel}</time>
                 <div class="event__type">
-                  <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
+                  <img class="event__type-icon" width="42" height="42" src="img/icons/${eventType}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${he.encode(point.type)} ${destinationName}</h3>
+                <h3 class="event__title">${eventType} ${destinationName}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
-                    <time class="event__start-time" datetime="${point.dateFrom}">${startTime}</time>
+                    <time class="event__start-time" datetime="${he.encode(point.dateFrom)}">${startTime}</time>
                     &mdash;
-                    <time class="event__end-time" datetime="${point.dateTo}">${endTime}</time>
+                    <time class="event__end-time" datetime="${he.encode(point.dateTo)}">${endTime}</time>
                   </p>
                   <p class="event__duration">${duration}</p>
                 </div>
