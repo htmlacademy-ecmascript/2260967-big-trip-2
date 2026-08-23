@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import flatpickr from 'flatpickr';
 import he from 'he';
 import { TYPES, DateFormat } from '../const.js';
+import { getSafeType } from '../utils.js';
 import 'flatpickr/dist/flatpickr.min.css';
 
 function createTypesTemplate(currentType, isDisabled) {
@@ -93,10 +94,11 @@ function createPointEditTemplate(state, destinations, offers, isNewPoint) {
 
   const rollupButtonTemplate = isNewPoint
     ? ''
-    : `<button class="event__rollup-btn" type="button">
+    : `<button class="event__rollup-btn" type="button" ${state.isDisabled ? 'disabled' : ''}>
         <span class="visually-hidden">Open event</span>
       </button>`;
   const destinationName = currentDestination ? he.encode(currentDestination.name) : '';
+  const eventType = getSafeType(state.type);
 
   return `
     <li class="trip-events__item">
@@ -105,7 +107,7 @@ function createPointEditTemplate(state, destinations, offers, isNewPoint) {
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-1">
               <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/${state.type}.png" alt="Event type icon">
+              <img class="event__type-icon" width="17" height="17" src="img/icons/${eventType}.png" alt="Event type icon">
             </label>
             <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${state.isDisabled ? 'disabled' : ''}>
             <div class="event__type-list">
@@ -116,7 +118,7 @@ function createPointEditTemplate(state, destinations, offers, isNewPoint) {
             </div>
           </div>
           <div class="event__field-group  event__field-group--destination">
-            <label class="event__label  event__type-output" for="event-destination-1">${state.type}</label>
+            <label class="event__label  event__type-output" for="event-destination-1">${eventType}</label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationName}" list="destination-list-1" ${state.isDisabled ? 'disabled' : ''}>
             <datalist id="destination-list-1">
               ${destinations.map((destination) => `<option value="${he.encode(destination.name)}"></option>`).join('')}
@@ -137,7 +139,7 @@ function createPointEditTemplate(state, destinations, offers, isNewPoint) {
             <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" min="0" value="${state.basePrice}" ${state.isDisabled ? 'disabled' : ''}>
           </div>
           <button class="event__save-btn  btn  btn--blue" type="submit" ${state.isDisabled || isSubmitDisabled ? 'disabled' : ''}>${state.isSaving ? 'Saving...' : 'Save'}</button>
-          <button class="event__reset-btn" type="reset" ${state.isDisabled ? 'style="pointer-events: none;"' : ''}>${resetButtonText}</button>
+          <button class="event__reset-btn" type="reset" ${state.isDisabled ? 'disabled' : ''}>${resetButtonText}</button>
           ${rollupButtonTemplate}
         </header>
         <section class="event__details">
@@ -218,28 +220,29 @@ export default class PointEditView extends AbstractStatefulView {
     this.#setDatepickers();
   }
 
-  #setDatepickers() {
-    this.#datepickerFrom = flatpickr(
-      this.element.querySelector('#event-start-time-1'),
+  #createDatepicker(selector, options) {
+    return flatpickr(
+      this.element.querySelector(selector),
       {
         enableTime: true,
         dateFormat: DateFormat.FLATPICKR,
-        defaultDate: this._state.dateFrom,
-        maxDate: this._state.dateTo,
-        onChange: this.#dateFromChangeHandler,
+        ...options,
       },
     );
+  }
 
-    this.#datepickerTo = flatpickr(
-      this.element.querySelector('#event-end-time-1'),
-      {
-        enableTime: true,
-        dateFormat: DateFormat.FLATPICKR,
-        defaultDate: this._state.dateTo,
-        minDate: this._state.dateFrom,
-        onChange: this.#dateToChangeHandler,
-      },
-    );
+  #setDatepickers() {
+    this.#datepickerFrom = this.#createDatepicker('#event-start-time-1', {
+      defaultDate: this._state.dateFrom,
+      maxDate: this._state.dateTo,
+      onChange: this.#dateFromChangeHandler,
+    });
+
+    this.#datepickerTo = this.#createDatepicker('#event-end-time-1', {
+      defaultDate: this._state.dateTo,
+      minDate: this._state.dateFrom,
+      onChange: this.#dateToChangeHandler,
+    });
   }
 
   #updateSaveButtonState() {

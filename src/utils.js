@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { FilterType } from './const.js';
+import { FilterType, TYPES, DEFAULT_POINT_TYPE } from './const.js';
 
 const MINUTES_IN_HOUR = 60;
 const HOURS_IN_DAY = 24;
@@ -9,11 +9,15 @@ const TIME_PAD_CHAR = '0';
 const LOCALE = 'en-US';
 const MONTH_FORMAT = { month: 'short' };
 
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  const day = date.getDate();
-  const month = date.toLocaleString(LOCALE, MONTH_FORMAT).toUpperCase();
+function formatDate(date) {
+  const parsedDate = new Date(date);
+  const day = parsedDate.getDate();
+  const month = parsedDate.toLocaleString(LOCALE, MONTH_FORMAT).toUpperCase();
   return `${day} ${month}`;
+}
+
+function getSafeType(type) {
+  return TYPES.includes(type) ? type : DEFAULT_POINT_TYPE;
 }
 
 function isPointFuture(point) {
@@ -79,8 +83,10 @@ const filter = {
 function isEscapeKey(evt) {
   return evt.key === 'Escape';
 }
+
 export {
   formatDate,
+  getSafeType,
   updateItem,
   sortByDay,
   sortByTime,
